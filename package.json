@@ -1,0 +1,17 @@
+{
+  "name": "speckle_widgets-js",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@anywidget/vite": "^0.2.0"
+  },
+  "dependencies": {
+    "@speckle/viewer": "^2.21.0",
+    "@speckle/objectloader": "^2.21.0"
+  }
+}

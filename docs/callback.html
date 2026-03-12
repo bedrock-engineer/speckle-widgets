@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speckle Auth Callback</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f8fafc;
+      color: #1a202c;
+    }
+    .card {
+      text-align: center;
+      padding: 32px 40px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      max-width: 360px;
+    }
+    h1 { font-size: 20px; margin: 0 0 12px 0; }
+    p  { font-size: 14px; color: #6b7280; margin: 0; }
+    .error { color: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <h1>Authenticating…</h1>
+    <p>Please wait.</p>
+  </div>
+
+  <script>
+    (function () {
+      const card = document.getElementById("card");
+
+      function showError(msg) {
+        card.innerHTML = `
+          <h1 class="error">Authentication failed</h1>
+          <p>${msg}</p>
+        `;
+      }
+
+      function showSuccess() {
+        card.innerHTML = `
+          <h1>Authentication complete!</h1>
+          <p>You can close this window.</p>
+        `;
+      }
+
+      // Parse query params
+      const params = new URLSearchParams(window.location.search);
+      const access_code = params.get("access_code");
+      const challenge   = params.get("challenge");
+      const error       = params.get("error");
+
+      if (error) {
+        showError("The server returned an error: " + error);
+        return;
+      }
+
+      if (!access_code || !challenge) {
+        showError("Missing access_code or challenge in the callback URL.");
+        return;
+      }
+
+      // Post message to parent window (the marimo widget)
+      // "*" is required since the marimo.app origin is unknown at build time.
+      // Security is enforced by challenge validation on the parent side.
+      if (window.opener) {
+        window.opener.postMessage({ access_code, challenge }, "*");
+      } else {
+        showError("No opener window found. Please try signing in again.");
+        return;
+      }
+
+      showSuccess();
+
+      // Auto-close after 1.5 s
+      setTimeout(() => window.close(), 1500);
+    })();
+  </script>
+</body>
+</html>
